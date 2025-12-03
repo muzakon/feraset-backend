@@ -23,7 +23,7 @@ class TaskManager:
             cls._instance.client = CloudTasksClient()
         return cls._instance
 
-    def create_task(
+    def create_generation(
         self,
         target_url: str,
         payload: dict,
@@ -60,7 +60,7 @@ class TaskManager:
             )
 
             # 5. Send the Create Task Request
-            return self.client.create_task(
+            return self.client.create_generation(
                 CreateTaskRequest(
                     parent=parent_path,
                     task=task,

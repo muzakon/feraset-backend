@@ -4,9 +4,12 @@ import datetime
 
 class HelperMethods:
     @staticmethod
-    def generate_random_timeout():
-        # Todo: 30, 60 arasında random sayı üretilecek
-        return random.randint(1, 10)
+    def generate_random_timeout(lower_bound: int = 30, upper_bound: int = 60):
+        return random.randint(lower_bound, upper_bound)
+
+    @staticmethod
+    def is_failed():
+        return random.random() < 0.5
 
     @staticmethod
     def get_current_time():

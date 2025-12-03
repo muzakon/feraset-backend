@@ -6,8 +6,8 @@ from core.settings import get_settings
 from services.tasks import TaskManager
 from utils.helper import HelperMethods
 from services.firebase import FirebaseService
-from enums.status import TaskStatus
-from errors.tasks import GenerationNotFoundError
+from enums.generations import GenerationStatus
+from errors.generations import GenerationNotFoundError
 import time
 import json
 
@@ -19,7 +19,7 @@ initialize_app()
 
 @https_fn.on_request()
 def on_callback(req: https_fn.Request) -> https_fn.Response:
-    # Birinci adımda Request method kontrolü yapalım. Çünkü "on_task_created" fonksiyonunda POST method ile task oluşturdum.
+    # Birinci adımda Request method kontrolü yapalım. Çünkü "on_generation_created" fonksiyonunda POST method ile task oluşturdum.
     if req.method != "POST":
         # METHOD_NOT_ALLOWED döndürmemiz kâfi. Case-study olması sebebiyle direkt olarak 405 (int) şeklinde döndürüyorum. Normal koşullarda Enum daha sağlıklı olur.
         return https_fn.Response(
@@ -39,8 +39,8 @@ def on_callback(req: https_fn.Request) -> https_fn.Response:
 
     firebase_service = FirebaseService()
     try:
-        firebase_service.update_task(
-            generation_id=generation_id, status=TaskStatus.DONE
+        firebase_service.update_generation(
+            generation_id=generation_id, status=GenerationStatus.DONE
         )
 
     # Aynı şekilde burada da 200 döndürüyorum. Task yok ise retry etmesine gerek yok.
@@ -52,7 +52,7 @@ def on_callback(req: https_fn.Request) -> https_fn.Response:
         )
 
     # Burada bilmediğimiz bir sebepten kaynaklı bir problem yaşanmış ise Retry edilmesinde problem yok.
-    except Exception as e:
+    except Exception:
         return https_fn.Response(
             response=json.dumps({"message": "Internal Server Error"}),
             mimetype="application/json",
@@ -65,14 +65,14 @@ def on_callback(req: https_fn.Request) -> https_fn.Response:
 
 
 @firestore_fn.on_document_created(document="generations/{generation_id}")
-def on_task_created(event: firestore_fn.Event) -> None:
+def on_generation_created(event: firestore_fn.Event) -> None:
     generation_id = event.params["generation_id"]
     timeout = HelperMethods.generate_random_timeout()
     if settings.CREATE_WEBHOOK == "True":
         scheduled_at = HelperMethods.get_current_time() + timeout
         print(f"Task: {generation_id} scheduled for {timeout} seconds later.")
         task_manager = TaskManager()
-        task_manager.create_task(
+        task_manager.create_generation(
             target_url=settings.WEBHOOK_URL,
             payload={"generation_id": generation_id},
             schedule_time_seconds=scheduled_at,

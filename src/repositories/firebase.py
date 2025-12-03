@@ -1,5 +1,5 @@
 from firebase_admin import firestore
-from enums.status import TaskStatus
+from enums.generations import GenerationStatus
 from core.settings import get_settings
 
 settings = get_settings()
@@ -10,7 +10,7 @@ class FirebaseRepository:
         self.db = firestore.client()
         self.collection_name = settings.COLLECTION_NAME
 
-    def get_task(self, generation_id: str) -> dict | None:
+    def get_generation(self, generation_id: str) -> dict | None:
         try:
             doc_ref = self.db.collection(self.collection_name).document(generation_id)
             doc_snapshot = doc_ref.get()
@@ -24,7 +24,7 @@ class FirebaseRepository:
 
         return doc_snapshot.to_dict()
 
-    def update_task(self, generation_id: str, status: TaskStatus):
+    def update_generation(self, generation_id: str, status: GenerationStatus):
         try:
             self.db.collection(self.collection_name).document(generation_id).update(
                 {"status": status.value}
