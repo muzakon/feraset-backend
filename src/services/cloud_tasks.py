@@ -17,13 +17,13 @@ settings = get_settings()
 class TaskManager:
     _instance = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.client = CloudTasksClient()
         return cls._instance
 
-    def create_generation(
+    def create_cloud_task(
         self,
         target_url: str,
         payload: dict,
@@ -60,7 +60,7 @@ class TaskManager:
             )
 
             # 5. Send the Create Task Request
-            return self.client.create_generation(
+            return self.client.create_task(
                 CreateTaskRequest(
                     parent=parent_path,
                     task=task,
