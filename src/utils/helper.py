@@ -9,7 +9,7 @@ class HelperMethods:
 
     @staticmethod
     def is_failed():
-        return random.random() < 0.5
+        return random.random() < 0.3
 
     @staticmethod
     def get_current_time():

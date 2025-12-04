@@ -1,5 +1,5 @@
 from services.firebase import FirebaseService
-from services.storage import StorageService
+from services.r2 import R2Service
 from utils.helper import HelperMethods
 from enums.generations import GenerationStatus
 from errors.generations import GenerationNotFoundError, UploadError
@@ -11,7 +11,7 @@ class GenerationCallbackService:
 
     def __init__(self):
         self.firebase_service = FirebaseService()
-        self.storage_service = StorageService()
+        self.r2_service = R2Service()
 
     def validate_request(self, method: str, json_data: dict) -> tuple[bool, str, int]:
         if method != "POST":
@@ -24,7 +24,7 @@ class GenerationCallbackService:
 
     def upload_image_to_bucket(self, generation_id: str):
         mock_url = HelperMethods.generate_random_image_url()
-        public_url = self.storage_service.upload_from_url(
+        public_url = self.r2_service.upload_from_url(
             url=mock_url,
             destination_blob_name=f"logo-generations/{uuid.uuid4()}.jpeg"
         )
@@ -39,10 +39,13 @@ class GenerationCallbackService:
             generation_id = json_data.get("generation_id")
             is_failed = HelperMethods.is_failed()
             new_status = GenerationStatus.FAILED if is_failed else GenerationStatus.DONE
+            image_url = None
+            
+            if not is_failed:
+                image_url = self.upload_image_to_bucket(
+                    generation_id=generation_id
+                )
 
-            image_url = self.upload_image_to_bucket(
-                generation_id=generation_id
-            )
             self.firebase_service.update_generation(
                 generation_id=generation_id, status=new_status, image_url=image_url
             )

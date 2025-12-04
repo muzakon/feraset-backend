@@ -9,8 +9,13 @@ class Settings(BaseSettings):
     QUEUE_LOCATION: str
     WEBHOOK_URL: str
     COLLECTION_NAME: str
-    GCP_BUCKET_NAME: str
-
+    R2_ACCESS_KEY_ID: str
+    R2_SECRET: str
+    R2_BUCKET_NAME: str
+    R2_API_URL: str
+    R2_REGION: str
+    R2_PUBLIC_URL: str
+    
     # Load Env File
     model_config = SettingsConfigDict(env_file=env_file)
 
