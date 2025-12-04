@@ -24,10 +24,10 @@ class FirebaseRepository:
 
         return doc_snapshot.to_dict()
 
-    def update_generation(self, generation_id: str, status: GenerationStatus):
+    def update_generation(self, generation_id: str, status: GenerationStatus, image_url: str):
         try:
             self.db.collection(self.collection_name).document(generation_id).update(
-                {"status": status.value}
+                {"status": status.value, "result": image_url}
             )
         except Exception as e:
             print(f"CRITICAL: Firestore error updating {generation_id}: {e}")

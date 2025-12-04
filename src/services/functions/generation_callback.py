@@ -1,7 +1,9 @@
 from services.firebase import FirebaseService
+from services.storage import StorageService
 from utils.helper import HelperMethods
 from enums.generations import GenerationStatus
-from errors.generations import GenerationNotFoundError
+from errors.generations import GenerationNotFoundError, UploadError
+import uuid
 
 
 class GenerationCallbackService:
@@ -9,6 +11,7 @@ class GenerationCallbackService:
 
     def __init__(self):
         self.firebase_service = FirebaseService()
+        self.storage_service = StorageService()
 
     def validate_request(self, method: str, json_data: dict) -> tuple[bool, str, int]:
         if method != "POST":
@@ -19,16 +22,29 @@ class GenerationCallbackService:
 
         return True, "", 200
 
-    def process_generation_callback(self, generation_id: str | None) -> tuple[str, int]:
-        try:
-            # Simulate processing and determine if failed
-            is_failed = HelperMethods.is_failed()
+    def upload_image_to_bucket(self, generation_id: str):
+        mock_url = HelperMethods.generate_random_image_url()
+        public_url = self.storage_service.upload_from_url(
+            url=mock_url,
+            destination_blob_name=f"logo-generations/{uuid.uuid4()}.jpeg"
+        )
 
-            # Update generation status
+        if not public_url:
+            raise UploadError(generation_id)
+
+        return public_url
+
+    def process_generation_callback(self, json_data: dict) -> tuple[str, int]:
+        try:
+            generation_id = json_data.get("generation_id")
+            is_failed = HelperMethods.is_failed()
             new_status = GenerationStatus.FAILED if is_failed else GenerationStatus.DONE
 
+            image_url = self.upload_image_to_bucket(
+                generation_id=generation_id
+            )
             self.firebase_service.update_generation(
-                generation_id=generation_id, status=new_status
+                generation_id=generation_id, status=new_status, image_url=image_url
             )
 
             print(
@@ -40,6 +56,11 @@ class GenerationCallbackService:
             # Return 200 to prevent retry for non-existent generations
             print(f"Generation not found: {generation_id}")
             return "Generation not found", 200
+
+        except UploadError:
+            # Return 200 to prevent retry for non-existent generations
+            print(f"Generation upload failed: {generation_id}")
+            return "Generation upload failed", 200
 
         except Exception as e:
             # Return 500 to trigger retry for unexpected errors
@@ -53,7 +74,6 @@ class GenerationCallbackService:
             return {"message": message, "status": status}
 
         # Process generation
-        generation_id = json_data.get("generation_id")
-        message, status = self.process_generation_callback(generation_id)
+        message, status = self.process_generation_callback(json_data)
 
         return {"message": message, "status": status}

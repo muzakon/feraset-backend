@@ -12,7 +12,7 @@ class FirebaseService:
         if not task:
             print(f"Generation: {generation_id} not found")
             raise GenerationNotFoundError(generation_id)
-
-    def update_generation(self, generation_id: str, status: GenerationStatus):
+        
+    def update_generation(self, generation_id: str, status: GenerationStatus, image_url: str):
         self.validate_generation(generation_id=generation_id)
-        self.repository.update_generation(generation_id=generation_id, status=status)
+        self.repository.update_generation(generation_id=generation_id, status=status, image_url=image_url)
