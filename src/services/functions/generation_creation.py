@@ -15,7 +15,7 @@ class GenerationCreationService:
         self.webhook_url = settings.WEBHOOK_URL
 
     def generate_timeout(self) -> int:
-        return HelperMethods.generate_random_timeout(lower_bound=3, upper_bound=10)
+        return HelperMethods.generate_random_timeout(lower_bound=30, upper_bound=60)
 
     def schedule_webhook_task(self, generation_id: str, timeout: int) -> None:
         scheduled_at = HelperMethods.get_current_time() + timeout
