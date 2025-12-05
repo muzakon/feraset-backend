@@ -1,5 +1,3 @@
-import time
-
 class GenerationNotFoundError(Exception):
     """Raised when a generation cannot be found."""
 
