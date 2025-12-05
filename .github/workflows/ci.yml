@@ -1,0 +1,33 @@
+name: Python Quality Check
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Point to the requirements file inside src/
+          if [ -f src/requirements.txt ]; then pip install -r src/requirements.txt; fi
+          # Install ruff explicitly (ensures it is available even if not in requirements.txt)
+          pip install ruff
+
+      - name: Run Ruff Linter
+        run: ruff check src --output-format=github
+
+      - name: Check Formatting with Ruff
+        run: ruff format --check --diff src
