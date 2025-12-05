@@ -6,12 +6,14 @@ import boto3
 
 settings = get_settings()
 
+
 class R2Service:
-    '''
-        Normal koşullarda kullanıcılara Signed URL döndürmek çok daha sağlıklı olurdu ancak bunu case-study için es geçiyorum.
-        Firebase'de tutulan alan URL değil, Blob path olmalı. Diğer türlü başka insanların ürettikleri görseller Public hale gelir. Hem veri boyutu, hem de güvenlik açısından bu daha uygundur.
-        Eğer ki uygulama içerisinde kullanıcının görsel upload etme durumu varsa da aynı şekilde, server'e yük bindirmek yerine Signed URL ile belirlenen Blob'a direkt upload edilmesi daha sağlıklı olur.
-    '''
+    """
+    Normal koşullarda kullanıcılara Signed URL döndürmek çok daha sağlıklı olurdu ancak bunu case-study için es geçiyorum.
+    Firebase'de tutulan alan URL değil, Blob path olmalı. Diğer türlü başka insanların ürettikleri görseller Public hale gelir. Hem veri boyutu, hem de güvenlik açısından bu daha uygundur.
+    Eğer ki uygulama içerisinde kullanıcının görsel upload etme durumu varsa da aynı şekilde, server'e yük bindirmek yerine Signed URL ile belirlenen Blob'a direkt upload edilmesi daha sağlıklı olur.
+    """
+
     _instance = None
 
     def __new__(cls):
@@ -26,10 +28,9 @@ class R2Service:
             )
         return cls._instance
 
-
     def upload_from_url(self, url: str, destination_blob_name: str) -> str | None:
         """
-            Download an image synchronously, convert to JPEG, and upload to GCS.
+        Download an image synchronously, convert to JPEG, and upload to GCS.
         """
 
         try:
@@ -55,7 +56,7 @@ class R2Service:
                 Body=converted_content,
                 ContentType="image/jpeg",
             )
-            
+
             return f"{settings.R2_PUBLIC_URL}/{destination_blob_name}"
 
         except httpx.HTTPError as e:

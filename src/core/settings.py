@@ -2,6 +2,8 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 env_file = ".env"
+
+
 class Settings(BaseSettings):
     GCP_PROJECT_ID: str
     QUEUE_NAME: str
@@ -14,7 +16,7 @@ class Settings(BaseSettings):
     R2_API_URL: str
     R2_REGION: str
     R2_PUBLIC_URL: str
-    
+
     # Load Env File
     model_config = SettingsConfigDict(env_file=env_file)
 

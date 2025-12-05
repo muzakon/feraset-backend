@@ -32,9 +32,7 @@ class GenerationCreationService:
         timeout = self.generate_timeout()
         try:
             self.schedule_webhook_task(generation_id, timeout)
-            print(
-                f"Webhook task created successfully for generation: {generation_id}"
-            )
+            print(f"Webhook task created successfully for generation: {generation_id}")
         except Exception as e:
             print(
                 f"Failed to create webhook task for generation {generation_id}: {str(e)}"

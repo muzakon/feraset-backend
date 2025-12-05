@@ -24,7 +24,9 @@ class FirebaseRepository:
 
         return doc_snapshot.to_dict()
 
-    def update_generation(self, generation_id: str, status: GenerationStatus, image_url: str):
+    def update_generation(
+        self, generation_id: str, status: GenerationStatus, image_url: str
+    ):
         try:
             self.db.collection(self.collection_name).document(generation_id).update(
                 {"status": status.value, "result": image_url}
