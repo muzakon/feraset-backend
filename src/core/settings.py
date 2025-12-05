@@ -3,7 +3,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 env_file = ".env"
 class Settings(BaseSettings):
-    CREATE_WEBHOOK: str
     GCP_PROJECT_ID: str
     QUEUE_NAME: str
     QUEUE_LOCATION: str
